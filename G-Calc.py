@@ -36,6 +36,12 @@ def mm_to_in():
         calc_display.delete(0, tk.END)
         calc_display.insert(tk.END, "Error")
 
+def backspace():
+    current = calc_display.get()
+    if len(current) > 0:
+        calc_display.delete(len(current)-1, tk.END)
+
+
 def calc_percent():
     try:
         original = float(percent_entry1.get())
@@ -49,7 +55,7 @@ def calc_percent():
         percent_result.config(text="Error")
 
 root = tk.Tk()
-root.title("Calculator with Conversions")
+root.title("G's Calculator")
 root.minsize(380, 480)
 
 # Style for bigger tabs
@@ -86,6 +92,11 @@ for (text, row, col) in buttons:
               command=lambda v=text: calc_button_click(v)).grid(
         row=row, column=col, padx=2, pady=2, sticky="nsew"
     )
+# Add the backspace button (row=5, column=1 example)
+tk.Button(calc_frame, text="←", font=('Arial', 16),
+          command=backspace).grid(
+    row=5, column=1, padx=2, pady=2, sticky="nsew"
+)
 
 # Add conversion buttons below calculator
 tk.Button(calc_frame, text="In → mm", font=('Arial', 15), command=in_to_mm).grid(
