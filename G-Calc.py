@@ -110,7 +110,6 @@ def draw_triangle(a, b, c, A, B):
     tri_canvas.create_text(x_B + B_offset_x, y_B + B_offset_y, text=f"B\n{B:.2f}°" if B else "B", anchor="e")
     tri_canvas.create_text(x_C + C_offset_x, y_C + C_offset_y, text="C", anchor="w")
 
-
 root = tk.Tk()
 root.title("Integrated Calculator")
 
@@ -120,11 +119,12 @@ style.configure("TNotebook.Tab", font=('Arial', 16), padding=[20, 10])
 notebook = ttk.Notebook(root)
 notebook.pack(fill='both', expand=True)
 
+##############################
 # Tab 1: Calculator
+##############################
 calc_frame = ttk.Frame(notebook)
 notebook.add(calc_frame, text="Calculator")
 
-# Entry, buttons, and conversion for calculator
 calc_frame.rowconfigure(tuple(range(7)), weight=1)
 calc_frame.columnconfigure(tuple(range(4)), weight=1)
 
@@ -186,12 +186,9 @@ tk.Button(calc_frame, text="In → mm", font=('Arial', 15), command=in_to_mm).gr
 tk.Button(calc_frame, text="mm → In", font=('Arial', 15), command=mm_to_in).grid(
     row=6, column=2, columnspan=2, padx=2, pady=4, sticky="nsew")
 
-# Tab 2: Inches ↔ mm (minimal panel since it's in calculator)
-conv_frame = ttk.Frame(notebook)
-notebook.add(conv_frame, text="Inches ↔ mm")
-tk.Label(conv_frame, text="Use the Calculator tab for conversions!", font=('Arial', 16)).pack(expand=True, pady=60)
-
-# Tab 3: Percent Finder
+##############################
+# Tab 2: Percent Finder
+##############################
 percent_frame = ttk.Frame(notebook)
 notebook.add(percent_frame, text="Percent Finder")
 for i in range(5):
@@ -222,7 +219,7 @@ percent_result = tk.Label(percent_frame, text="", font=('Arial', 16))
 percent_result.grid(row=3, column=0, columnspan=2, sticky="nsew", padx=8, pady=8)
 
 ##############################
-# Tab 4: Right Triangle Solver
+# Tab 3: Right Triangle Solver
 ##############################
 tri_frame = ttk.Frame(notebook)
 notebook.add(tri_frame, text="Right Triangle Solver")
