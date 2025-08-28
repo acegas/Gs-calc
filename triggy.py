@@ -1,11 +1,7 @@
 import tkinter as tk
 import math
 
-# Store triangle rotation state: 0, 1, 2, or 3 (times 90 degrees)
-rotation = 0
-
 def solve_triangle():
-    global triangle_data
     a_val = entry_a.get().strip()
     b_val = entry_b.get().strip()
     c_val = entry_c.get().strip()
@@ -65,67 +61,51 @@ def solve_triangle():
         entry_A.insert(0, f"{A:.2f}" if A else "")
         entry_B.insert(0, f"{B:.2f}" if B else "")
 
-        triangle_data = (a, b, c, A, B)
-        draw_triangle(*triangle_data, rotation)
+        draw_triangle(a, b, c, A, B)
         result_lbl.config(text=f"Solved!")
     except Exception as e:
         result_lbl.config(text="Error: Check your inputs.")
 
-def rotate_triangle():
-    global rotation, triangle_data
-    rotation = (rotation + 1) % 4
-    draw_triangle(*triangle_data, rotation)
-
-def draw_triangle(a, b, c, A, B, rotation=0):
+def draw_triangle(a, b, c, A, B):
     canvas.delete("all")
     pad = 40
     base = 180
     height = 120
 
-    # Base triangle points
-    points = [
-        (pad, pad + height),         # x_C, y_C (right angle, vertex C)
-        (pad + base, pad + height),  # x_B, y_B (vertex B)
-        (pad, pad)                   # x_A, y_A (vertex A)
-    ]
+    # ---- Offsets for label adjustment ----
+    A_offset_x, A_offset_y = 10, 28    # Angle A (vertex A)
+    B_offset_x, B_offset_y = -25, -10  # Angle B (vertex B)
+    C_offset_x, C_offset_y = 10, -10   # vertex C
+    b_offset_y = 10                    # side b (base)
+    a_offset_x = -10                   # side a (vertical leg)
+    c_offset_x, c_offset_y = -1, -10  # side c (hypotenuse)
+    # --------------------------------------
 
-    # Rotate points around center
-    cx, cy = pad + base // 2, pad + height // 2
-    def rotate(x, y, deg):
-        rad = math.radians(deg)
-        x0, y0 = x - cx, y - cy
-        x_new = x0 * math.cos(rad) - y0 * math.sin(rad) + cx
-        y_new = x0 * math.sin(rad) + y0 * math.cos(rad) + cy
-        return x_new, y_new
-    rotated_pts = [rotate(x, y, 90*rotation) for x, y in points]
-    x_C, y_C = rotated_pts[0]
-    x_B, y_B = rotated_pts[1]
-    x_A, y_A = rotated_pts[2]
+    # Triangle corners
+    x_C, y_C = pad, pad + height         # C (right angle)
+    x_B, y_B = pad + base, pad + height  # B
+    x_A, y_A = pad, pad                  # A
 
     canvas.create_polygon(x_C, y_C, x_B, y_B, x_A, y_A, fill='#d0eaff')
     canvas.create_line(x_C, y_C, x_B, y_B, width=3)
     canvas.create_line(x_B, y_B, x_A, y_A, width=3)
     canvas.create_line(x_A, y_A, x_C, y_C, width=3)
 
-    # Compute midpoint helper
-    midpoint = lambda A, B: ((A[0]+B[0])/2, (A[1]+B[1])/2)
+    # Midpoints for side labels
+    mx_b, my_b = (x_C + x_B) / 2, (y_C + y_B) / 2
+    mx_a, my_a = (x_A + x_C) / 2, (y_A + y_C) / 2
+    mx_c, my_c = (x_A + x_B) / 2, (y_A + y_B) / 2
 
-    # Side labels
-    mx_b, my_b = midpoint((x_C, y_C), (x_B, y_B))
-    canvas.create_text(mx_b, my_b + 18, text=f"b = {b:.2f}" if b else "b")
+    # --- Labels ---
+    # Sides
+    canvas.create_text(mx_b, my_b + b_offset_y, text=f"b = {b:.2f}" if b else "b")
+    canvas.create_text(mx_a + a_offset_x, my_a, text=f"a = {a:.2f}" if a else "a", anchor="e")
+    canvas.create_text(mx_c + c_offset_x, my_c + c_offset_y, text=f"c = {c:.2f}" if c else "c")
 
-    mx_a, my_a = midpoint((x_A, y_A), (x_C, y_C))
-    canvas.create_text(mx_a - 18, my_a, text=f"a = {a:.2f}" if a else "a", anchor="e")
-
-    mx_c, my_c = midpoint((x_A, y_A), (x_B, y_B))
-    canvas.create_text(mx_c - 16, my_c - 10, text=f"c = {c:.2f}" if c else "c")
-
-    # Angle B (adjustable placement)
-    canvas.create_text(x_B - 10, y_B - 10, text=f"B\n{B:.2f}°" if B else "B", anchor="e")
-    # Angle A (adjustable placement)
-    canvas.create_text(x_A + 23, y_A + 32, text=f"A\n{A:.2f}°" if A else "A", anchor="w")
-    # Vertex C label only
-    canvas.create_text(x_C + 10, y_C - 10, text="C", anchor="w")
+    # Angles
+    canvas.create_text(x_A + A_offset_x, y_A + A_offset_y, text=f"A\n{A:.2f}°" if A else "A", anchor="w")
+    canvas.create_text(x_B + B_offset_x, y_B + B_offset_y, text=f"B\n{B:.2f}°" if B else "B", anchor="e")
+    canvas.create_text(x_C + C_offset_x, y_C + C_offset_y, text="C", anchor="w")
 
 root = tk.Tk()
 root.title("Right Triangle Solver")
@@ -138,7 +118,6 @@ tk.Label(frame, text="Side b (base):").grid(row=1, column=0)
 tk.Label(frame, text="Side c (hypotenuse):").grid(row=2, column=0)
 tk.Label(frame, text="Angle A (top, deg):").grid(row=3, column=0)
 tk.Label(frame, text="Angle B (bottom right, deg):").grid(row=4, column=0)
-
 entry_a = tk.Entry(frame)
 entry_b = tk.Entry(frame)
 entry_c = tk.Entry(frame)
@@ -151,16 +130,11 @@ entry_A.grid(row=3, column=1)
 entry_B.grid(row=4, column=1)
 
 tk.Button(frame, text="Calculate", command=solve_triangle).grid(row=5, column=0, columnspan=2, pady=8)
-tk.Button(frame, text="Rotate", command=rotate_triangle).grid(row=6, column=0, columnspan=2, pady=4)
-
 result_lbl = tk.Label(frame, text="")
-result_lbl.grid(row=7, column=0, columnspan=2)
+result_lbl.grid(row=6, column=0, columnspan=2)
 
 canvas = tk.Canvas(root, width=260, height=200, bg="white")
 canvas.pack(side=tk.RIGHT, padx=15, pady=15)
-
-# Store last-calculated triangle info for rotation
-triangle_data = (None, None, None, None, None)
-draw_triangle(*triangle_data, rotation)
+draw_triangle(None, None, None, None, None)
 
 root.mainloop()
